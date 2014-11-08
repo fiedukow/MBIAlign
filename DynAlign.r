@@ -7,11 +7,13 @@ DynAlignInit = function(S, M, d, s) {
     stop("For now this interface is only valid for exacly 3 input strings.")
   STATE = list();
   STATE$S = S;
-  STATE$M = M;
+  STATE$M = rbind(cbind(M, d), d)
+  rownames(STATE$M) = c(S, "-")
+  colnames(STATE$M) = c(S, "-")
   STATE$s = s;
   STATE$L = c();
-  STATE$T = array(-Inf, unlist(lapply(s, length)))
-  STATE$T[t(replicate(dim, 1))] = 0
+  STATE$T = array(-Inf, unlist(lapply(s, length)) + 1)
+  STATE$T[t(replicate(dims, 1))] = 0
   STATE$s_out = list();
   STATE$StateAction = TFill
   STATE$TIndex = c(2, replicate(dims - 1, 1))
@@ -19,7 +21,7 @@ DynAlignInit = function(S, M, d, s) {
 }
 
 DynAlignStep = function(STATE) {
-  return(State$StateAction(STATE))
+  return(STATE$StateAction(STATE))
 }
 
 TFill = function(STATE) {
@@ -36,7 +38,7 @@ TFill = function(STATE) {
     H_VirtualTValue(STATE$T, STATE$TIndex + c( 0, -1, -1)) + DynAlign_e(c("-", y , z ), STATE$M),
     H_VirtualTValue(STATE$T, STATE$TIndex + c(-1,  0,  0)) + DynAlign_e(c( x ,"-","-"), STATE$M),
     H_VirtualTValue(STATE$T, STATE$TIndex + c( 0, -1,  0)) + DynAlign_e(c("-", y ,"-"), STATE$M),
-    H_VirtualTValue(STATE$T, STATE$TIndex + c( 0,  0, -1)) + DynAlign_e(c("-","-", z ), STATE$M),
+    H_VirtualTValue(STATE$T, STATE$TIndex + c( 0,  0, -1)) + DynAlign_e(c("-","-", z ), STATE$M)
   )
 
   # Update state for next step
@@ -46,8 +48,12 @@ TFill = function(STATE) {
   return(STATE);
 }
 
+LFill = function(STATE) {
+  return(STATE)
+}
+
 DynAlign_e = function(symbols, M) {
-  return sum(M[t(combn(symbols))])
+  return(sum(M[t(combn(symbols, 2))]))
 }
 
 H_IteratePosition = function(position, limit) {
@@ -66,8 +72,8 @@ H_IteratePosition = function(position, limit) {
 
 H_VirtualTValue = function(T, position) {
   if (sum(position < 1) > 0 || sum(position > dim(T)) > 0)
-    return -Inf;
+    return(-Inf)
   else
-    return T[t(position)]
+    return(T[t(position)])
 }
 
