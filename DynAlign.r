@@ -1,7 +1,6 @@
 library("combinat")
 
 DynAlignInit = function(S, M, d, s) {
-  # TODO - extend Mmatrix by d
   dims = length(s)
   if (dims != 3)
     stop("For now this interface is only valid for exacly 3 input strings.")
