@@ -1,5 +1,7 @@
 library(shiny)
 library(scatterplot3d)
+library(combinat)
+library(plotrix)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -32,5 +34,25 @@ shinyServer(function(input, output) {
     input$step
     i <<- i + 1
     return(paste(i))
+  })
+
+  output$LOut <- renderText({
+    input$step
+    return(paste(c("L:", paste(STATE$L, collapse=", "))))
+  })
+
+  output$S1Out <- renderText({
+    input$step
+    return(paste(c("S1:", paste(STATE$s_out[1], collapse=", "))))
+  })
+
+  output$S2Out <- renderText({
+    input$step
+    return(paste(c("S2:", paste(STATE$s_out[2], collapse=", "))))
+  })
+
+  output$S3Out <- renderText({
+    input$step
+    return(paste(c("S3:", paste(STATE$s_out[3], collapse=", "))))
   })
 })
