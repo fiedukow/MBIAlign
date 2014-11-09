@@ -62,6 +62,7 @@ LFill = function(STATE) {
 
 OutGen = function(STATE) {
   if (length(STATE$L) < 2) {
+    STATE$L = list()
     STATE$StateAction = End
     return(STATE)
   }
