@@ -4,7 +4,7 @@ library(shiny)
 shinyUI(fluidPage(
 
   # Application title
-  titlePanel("Multidim"),
+  titlePanel("Szukanie globalnego podobieństwa 3 ciągów metodą programowania dynamicznego."),
 
   # Sidebar with a slider input for the number of bins
   sidebarLayout(

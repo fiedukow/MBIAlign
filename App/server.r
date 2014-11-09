@@ -8,6 +8,7 @@ shinyServer(function(input, output) {
   startTime <- Sys.time()
   STATE = DynAlignInit(c("a","b","c"), matrix(c(2,-1,-2,-1,3,-2,-2,-2,4), nrow=3, byrow=3), -1,
                        list(c("a","b","c","a"),c("a","c","a"),c("b","b","c")))
+  currentIndex = c(1,1,1)
   current = 0
   vis_L = list()
 
@@ -19,6 +20,7 @@ shinyServer(function(input, output) {
   output$TState <- renderPlot({
     diff = (input$step + input$step10 * 10) - current
     while(diff > 0) {
+      currentIndex <<- STATE$TIndex
       STATE <<- DynAlignStep(STATE)
       if (length(STATE$L) > length(vis_L))  ### TODO - This is hack - it should be keept in state internally.
         vis_L <<- STATE$L
@@ -50,8 +52,33 @@ shinyServer(function(input, output) {
       sp$points3d(mL[,1], mL[,2], mL[,3], col="blue", lwd=3)
     }
 
+    sp$points3d(currentIndex[1]  , currentIndex[2]  , currentIndex[3]  , lwd=2, col="black")
+
+    #TODO - this looks horrible:
+    if (currentIndex[1] > 1 && currentIndex[2] > 1 && currentIndex[3] > 1)
+      sp$points3d(currentIndex[1]-1, currentIndex[2]-1, currentIndex[3]-1, lwd=2, col="blue")
+
+    if (currentIndex[2] > 1 && currentIndex[3] > 1)
+      sp$points3d(currentIndex[1]  , currentIndex[2]-1, currentIndex[3]-1, lwd=2, col="blue")
+
+    if (currentIndex[1] > 1 && currentIndex[3] > 1)
+      sp$points3d(currentIndex[1]-1, currentIndex[2]  , currentIndex[3]-1, lwd=2, col="blue")
+
+    if (currentIndex[1] > 1 && currentIndex[2] > 1)
+      sp$points3d(currentIndex[1]-1, currentIndex[2]-1, currentIndex[3]  , lwd=2, col="blue")
+
+    if (currentIndex[1] > 1)
+      sp$points3d(currentIndex[1]-1, currentIndex[2]  , currentIndex[3]  , lwd=2, col="blue")
+
+    if (currentIndex[2] > 1)
+      sp$points3d(currentIndex[1]  , currentIndex[2]-1, currentIndex[3]  , lwd=2, col="blue")
+
+    if (currentIndex[3] > 1)
+      sp$points3d(currentIndex[1]  , currentIndex[2]  , currentIndex[3]-1, lwd=2, col="blue")
+
+
     output$LOut <- renderText({
-      return(paste(c("<strong>L:</strong>", paste(vis_L, collapse=", "))))})
+      return(paste(c("<strong>L:</strong>", paste(STATE$L, collapse=", "))))})
 
     output$SOut <- renderText({
       input$step
