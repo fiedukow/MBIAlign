@@ -15,6 +15,7 @@ shinyUI(fluidPage(
       numericInput("N", value=20, label="N wyswietlanych komórek:"),
       br(),br(),
       uiOutput("MInput"),
+      numericInput("d", value=-1, label="d"),
       textInput("s1", value="ACCAGT", label="s1"),
       textInput("s2", value="AAATT",  label="s2"),
       textInput("s3", value="CAAGT",  label="s3")

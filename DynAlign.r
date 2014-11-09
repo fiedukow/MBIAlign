@@ -6,6 +6,7 @@ DynAlignInit = function(S, M, d, s) {
     stop("For now this interface is only valid for exacly 3 input strings.")
   STATE = list();
   STATE$S = S;
+  STATE$M_base = M
   STATE$M = rbind(cbind(M, d), d)
   rownames(STATE$M) = c(S, "-")
   colnames(STATE$M) = c(S, "-")
@@ -16,6 +17,7 @@ DynAlignInit = function(S, M, d, s) {
   STATE$s_out = list();
   STATE$StateAction = TFill
   STATE$TIndex = c(2, replicate(dims - 1, 1))
+  STATE$d = d
   return(STATE)
 }
 

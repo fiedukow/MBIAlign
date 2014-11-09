@@ -15,6 +15,7 @@ shinyServer(function(input, output) {
   currentIndex = c(1,1,1)
   current = 0
   vis_L = list()
+  init_iteration = 0 # :( https://github.com/rstudio/shiny/issues/167
 
   output$MInput <- renderText({
     return(paste("<h3>M = </h3>",
@@ -29,12 +30,37 @@ shinyServer(function(input, output) {
                  ))
   })
 
-  output$OText <- renderText({
-    return(paste("<strong>Step:</strong>", input$step + input$step10 * 10))
-  })
-
   output$TState <- renderPlot({
-    diff = (input$step + input$step10 * 10) - current
+    #REINITIALIZATION?
+    if (!is.null(input$AA)) {
+      cm = matrix(c(input$AA,input$AC,input$AT,input$AG,
+                    input$AC,input$CC,input$CT,input$CG,
+                    input$AT,input$CT,input$TT,input$TG,
+                    input$AG,input$CG,input$TG,input$GG),
+                   nrow=4, ncol=4, byrow=TRUE)
+      cs = list(unlist(strsplit(input$s1, split="")),
+                unlist(strsplit(input$s2, split="")),
+                unlist(strsplit(input$s3, split="")))
+      same_s = length(cs) == length(STATE$s)
+      for(i in 1:3) {
+         if (!same_s)
+           break;
+         form_value = unlist(cs[[i]])
+         model_value = unlist(STATE$s[[1]])
+         if (length(form_value) != length(model_value) ||
+             sum(form_value != model_value) != 0)
+           same_s = FALSE
+      }
+      #print(paste(sum(dim(cm) != dim(STATE$M_base)) != 0, input$d != STATE$d, same_s, dim(cm),"-", dim(STATE$M_base), collapse="x"))
+      #if (sum(dim(cm) != dim(STATE$M_base)) == 0)
+      #  print(cm != STATE$M_base)
+      if (sum(dim(cm) != dim(STATE$M_base)) != 0 || cm != STATE$M_base || input$d != STATE$d || same_s) {
+       STATE <<- DynAlignInit(c("A","C","T","G"), cm, input$d, cs)
+       init_iteration = (input$step + input$step10 * 10)
+      }
+    }
+
+    diff = (input$step + input$step10 * 10 - init_iteration) - current
     while(diff > 0) {
       currentIndex <<- STATE$TIndex
       STATE <<- DynAlignStep(STATE)
@@ -42,7 +68,7 @@ shinyServer(function(input, output) {
         vis_L <<- STATE$L
       diff = diff - 1
     }
-    current <<- (input$step + input$step10 * 10)
+    current <<- (input$step + input$step10 * 10 - init_iteration)
     points = expand.grid(1:dim(STATE$T)[1], 1:dim(STATE$T)[2], 1:dim(STATE$T)[3])
     not_infinity = which(STATE$T[as.matrix(points)] != -Inf);
     values = STATE$T[as.matrix(points)][not_infinity]
@@ -104,8 +130,6 @@ shinyServer(function(input, output) {
       return(paste(c("<strong>L:</strong>", paste(STATE$L, collapse=", "))))})
 
     output$SOut <- renderText({
-      input$step
-      input$step10
       return(paste(
         "<strong>Output:</strong><pre>",
         "<strong>S1:</strong>", paste(unlist(STATE$s_out[1]), collapse=", "), "\r\n",
@@ -113,6 +137,10 @@ shinyServer(function(input, output) {
         "<strong>S3:</strong>", paste(unlist(STATE$s_out[3]), collapse=", "), "\r\n</pre>",
         collapse="\n"
       ))
+    })
+
+    output$OText <- renderText({
+      return(paste("<strong>Step:</strong>", input$step + input$step10 * 10 - init_iteration))
     })
   })
 
