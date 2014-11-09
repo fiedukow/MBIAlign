@@ -16,15 +16,11 @@ shinyUI(fluidPage(
     # Show a plot of the generated distribution
     mainPanel(
       plotOutput("TState"),
-      textOutput("OText"),
+      uiOutput("OText"),
       br(),
-      textOutput("LOut"),
+      uiOutput("LOut"),
       br(),
-      textOutput("S1Out"),
-      br(),
-      textOutput("S2Out"),
-      br(),
-      textOutput("S3Out")
+      uiOutput("SOut")
     )
   )
 

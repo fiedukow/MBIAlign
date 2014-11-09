@@ -19,7 +19,10 @@ shinyServer(function(input, output) {
     scatterplot3d(unlist(points[1])[not_infinity],
                   unlist(points[2])[not_infinity],
                   unlist(points[3])[not_infinity],
-                  lwd=4,
+                  type="h",
+                  lty.hplot=2,
+                  lwd=1,
+                  pch=19,
                   color=color.scale(
                     STATE$T[as.matrix(points)][not_infinity],
                     cs1=c(1,0),
@@ -33,26 +36,22 @@ shinyServer(function(input, output) {
   output$OText <- renderText({
     input$step
     i <<- i + 1
-    return(paste(i))
+    return(paste("<strong>Step:</strong>", i))
   })
 
   output$LOut <- renderText({
     input$step
-    return(paste(c("L:", paste(STATE$L, collapse=", "))))
+    return(paste(c("<strong>L:</strong>", paste(STATE$L, collapse=", "))))
   })
 
-  output$S1Out <- renderText({
+  output$SOut <- renderText({
     input$step
-    return(paste(c("S1:", paste(STATE$s_out[1], collapse=", "))))
-  })
-
-  output$S2Out <- renderText({
-    input$step
-    return(paste(c("S2:", paste(STATE$s_out[2], collapse=", "))))
-  })
-
-  output$S3Out <- renderText({
-    input$step
-    return(paste(c("S3:", paste(STATE$s_out[3], collapse=", "))))
+    return(paste(
+        "<strong>Output:</strong><pre>",
+        "<strong>S1:</strong>", paste(unlist(STATE$s_out[1]), collapse=", "), "\r\n",
+        "<strong>S2:</strong>", paste(unlist(STATE$s_out[2]), collapse=", "), "\r\n",
+        "<strong>S3:</strong>", paste(unlist(STATE$s_out[3]), collapse=", "), "\r\n</pre>",
+        collapse="\n"
+    ))
   })
 })
