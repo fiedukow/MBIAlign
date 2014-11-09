@@ -7,13 +7,18 @@ h_InM = function(id, value) {
   return(paste0("<input id=\"",id,"\" type=\"number\" value=\"",value,"\" style=\"width: 40px; text-align: center; padding-left: 0px;\"/>"))
 }
 
-
-
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   startTime <- Sys.time()
-  STATE = DynAlignInit(c("a","b","c"), matrix(c(2,-1,-2,-1,3,-2,-2,-2,4), nrow=3, byrow=3), -1,
-                       list(c("a","b","c","a"),c("a","c","a"),c("b","b","c")))
+  STATE = DynAlignInit(c("A","C","T","G"), matrix(c( 1,-1,-1,-1,
+                                                    -1, 1,-1,-1,
+                                                    -1,-1, 1,-1,
+                                                    -1,-1,-1, 1),
+                                                  nrow=4, ncol=4, byrow=TRUE),
+                       -1,
+                       list(c("A","C","C","A","G","T"),
+                            c("A","A","A","T","T"),
+                            c("C","A","A","G","T")))
   currentIndex = c(1,1,1)
   currentStep = 0
   vis_L = list()
