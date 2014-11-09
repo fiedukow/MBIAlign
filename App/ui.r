@@ -12,7 +12,12 @@ shinyUI(fluidPage(
       actionButton("step", label = "Step"),
       actionButton("step10", label = "10 Steps"),
       br(),br(),
-      numericInput("N", value=20, label="N wyswietlanych komórek:")
+      numericInput("N", value=20, label="N wyswietlanych komórek:"),
+      br(),br(),
+      uiOutput("MInput"),
+      textInput("s1", value="ACCAGT", label="s1"),
+      textInput("s2", value="AAATT",  label="s2"),
+      textInput("s3", value="CAAGT",  label="s3")
     ),
 
     # Show a plot of the generated distribution

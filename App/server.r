@@ -3,6 +3,10 @@ library(scatterplot3d)
 library(combinat)
 library(plotrix)
 
+h_InM = function(id, value) {
+  return(paste0("<input id=\"",id,"\" type=\"number\" value=\"",value,"\" style=\"width: 40px; text-align: center; padding-left: 0px;\"/>"))
+}
+
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   startTime <- Sys.time()
@@ -12,10 +16,22 @@ shinyServer(function(input, output) {
   current = 0
   vis_L = list()
 
+  output$MInput <- renderText({
+    return(paste("<h3>M = </h3>",
+                 "<table>",
+                 "<tr><th> </th><th>         A         </th><th>         C         </th><th>         T         </th><th>         G         </th></tr>",
+                 "<tr><th>A</th><td>",h_InM("AA",  1),"</td><td>                   </td><td>                   </td><td>                   </td></tr>",
+                 "<tr><th>C</th><td>",h_InM("AC", -1),"</td><td>",h_InM("CC",  1),"</td><td>                   </td><td>                   </td></tr>",
+                 "<tr><th>T</th><td>",h_InM("AG", -1),"</td><td>",h_InM("CG", -1),"</td><td>",h_InM("TT",  1),"</td><td>                   </td></tr>",
+                 "<tr><th>G</th><td>",h_InM("AT", -1),"</td><td>",h_InM("CT", -1),"</td><td>",h_InM("TG", -1),"</td><td>",h_InM("GG",  1),"</td></tr>",
+                 "</table>",
+                 sep="\r\n"
+                 ))
+  })
+
   output$OText <- renderText({
     return(paste("<strong>Step:</strong>", input$step + input$step10 * 10))
   })
-
 
   output$TState <- renderPlot({
     diff = (input$step + input$step10 * 10) - current
