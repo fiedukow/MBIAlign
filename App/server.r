@@ -45,7 +45,14 @@ shinyServer(function(input, output) {
                          cs3=c(0,0)),
                        xlim = c(1,dim(STATE$T)[1]),
                        ylim = c(1,dim(STATE$T)[2]),
-                       zlim = c(1,dim(STATE$T)[3]))
+                       zlim = c(1,dim(STATE$T)[3]),
+                       xlab = "s1",
+                       ylab = "s2",
+                       zlab = "s3",
+                       x.ticklabs = c("X", STATE$s[[1]]),
+                       y.ticklabs = c("X", STATE$s[[2]]),
+                       z.ticklabs = c("X", STATE$s[[3]]),
+                       lab = c(5,4,0), lab.z=4)
     if (length(vis_L) > 0) {
       mL = matrix(unlist(vis_L), ncol=3, byrow=3)
       sp$points3d(mL[,1], mL[,2], mL[,3], type="l", lwd=3)
