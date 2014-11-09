@@ -10,7 +10,9 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
       actionButton("step", label = "Step"),
-      actionButton("step10", label = "10 Steps")
+      actionButton("step10", label = "10 Steps"),
+      br(),br(),
+      numericInput("N", value=20, label="N wyswietlanych komórek:")
     ),
 
     # Show a plot of the generated distribution

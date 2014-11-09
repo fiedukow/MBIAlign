@@ -9,6 +9,7 @@ shinyServer(function(input, output) {
   STATE = DynAlignInit(c("a","b","c"), matrix(c(2,-1,-2,-1,3,-2,-2,-2,4), nrow=3, byrow=3), -1,
                        list(c("a","b","c","a"),c("a","c","a"),c("b","b","c")))
   current = 0
+  vis_L = list()
 
   output$OText <- renderText({
     return(paste("<strong>Step:</strong>", input$step + input$step10 * 10))
@@ -19,43 +20,51 @@ shinyServer(function(input, output) {
     diff = (input$step + input$step10 * 10) - current
     while(diff > 0) {
       STATE <<- DynAlignStep(STATE)
+      if (length(STATE$L) > length(vis_L))  ### TODO - This is hack - it should be keept in state internally.
+        vis_L <<- STATE$L
       diff = diff - 1
     }
     current <<- (input$step + input$step10 * 10)
     points = expand.grid(1:dim(STATE$T)[1], 1:dim(STATE$T)[2], 1:dim(STATE$T)[3])
     not_infinity = which(STATE$T[as.matrix(points)] != -Inf);
-    scatterplot3d(unlist(points[1])[not_infinity],
-                  unlist(points[2])[not_infinity],
-                  unlist(points[3])[not_infinity],
-                  type="h",
-                  lty.hplot=2,
-                  lwd=1,
-                  pch=19,
-                  color=color.scale(
-                    STATE$T[as.matrix(points)][not_infinity],
-                    cs1=c(1,0),
-                    cs2=c(0,1),
-                    cs3=c(0,0)),
-                  xlim = c(1,dim(STATE$T)[1]),
-                  ylim = c(1,dim(STATE$T)[2]),
-                  zlim = c(1,dim(STATE$T)[3]))
-  })
+    values = STATE$T[as.matrix(points)][not_infinity]
+    in_order = order(values, decreasing=TRUE)[1:input$N]
+    sp = scatterplot3d(unlist(points[1])[not_infinity][in_order],
+                       unlist(points[2])[not_infinity][in_order],
+                       unlist(points[3])[not_infinity][in_order],
+                       type="h",
+                       lty.hplot=2,
+                       lwd=1,
+                       pch=19,
+                       color=color.scale(
+                         values[in_order],
+                         cs1=c(1,0),
+                         cs2=c(0,1),
+                         cs3=c(0,0)),
+                       xlim = c(1,dim(STATE$T)[1]),
+                       ylim = c(1,dim(STATE$T)[2]),
+                       zlim = c(1,dim(STATE$T)[3]))
+    if (length(vis_L) > 0) {
+      mL = matrix(unlist(vis_L), ncol=3, byrow=3)
+      sp$points3d(mL[,1], mL[,2], mL[,3], type="l", lwd=3)
+      sp$points3d(mL[,1], mL[,2], mL[,3], col="blue", lwd=3)
+    }
 
-  output$LOut <- renderText({
-    input$step
-    input$step10
-    return(paste(c("<strong>L:</strong>", paste(STATE$L, collapse=", "))))
-  })
+    output$LOut <- renderText({
+      return(paste(c("<strong>L:</strong>", paste(vis_L, collapse=", "))))})
 
-  output$SOut <- renderText({
-    input$step
-    input$step10
-    return(paste(
+    output$SOut <- renderText({
+      input$step
+      input$step10
+      return(paste(
         "<strong>Output:</strong><pre>",
         "<strong>S1:</strong>", paste(unlist(STATE$s_out[1]), collapse=", "), "\r\n",
         "<strong>S2:</strong>", paste(unlist(STATE$s_out[2]), collapse=", "), "\r\n",
         "<strong>S3:</strong>", paste(unlist(STATE$s_out[3]), collapse=", "), "\r\n</pre>",
         collapse="\n"
-    ))
+      ))
+    })
   })
+
+
 })
