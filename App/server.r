@@ -6,14 +6,22 @@ library(plotrix)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   startTime <- Sys.time()
-  i = 0
   STATE = DynAlignInit(c("a","b","c"), matrix(c(2,-1,-2,-1,3,-2,-2,-2,4), nrow=3, byrow=3), -1,
                        list(c("a","b","c","a"),c("a","c","a"),c("b","b","c")))
+  current = 0
+
+  output$OText <- renderText({
+    return(paste("<strong>Step:</strong>", input$step + input$step10 * 10))
+  })
+
 
   output$TState <- renderPlot({
-    input$step
-    if (i > 1)
-    STATE <<- DynAlignStep(STATE)
+    diff = (input$step + input$step10 * 10) - current
+    while(diff > 0) {
+      STATE <<- DynAlignStep(STATE)
+      diff = diff - 1
+    }
+    current <<- (input$step + input$step10 * 10)
     points = expand.grid(1:dim(STATE$T)[1], 1:dim(STATE$T)[2], 1:dim(STATE$T)[3])
     not_infinity = which(STATE$T[as.matrix(points)] != -Inf);
     scatterplot3d(unlist(points[1])[not_infinity],
@@ -33,19 +41,15 @@ shinyServer(function(input, output) {
                   zlim = c(1,dim(STATE$T)[3]))
   })
 
-  output$OText <- renderText({
-    input$step
-    i <<- i + 1
-    return(paste("<strong>Step:</strong>", i))
-  })
-
   output$LOut <- renderText({
     input$step
+    input$step10
     return(paste(c("<strong>L:</strong>", paste(STATE$L, collapse=", "))))
   })
 
   output$SOut <- renderText({
     input$step
+    input$step10
     return(paste(
         "<strong>Output:</strong><pre>",
         "<strong>S1:</strong>", paste(unlist(STATE$s_out[1]), collapse=", "), "\r\n",
