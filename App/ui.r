@@ -12,7 +12,7 @@ shinyUI(fluidPage(
       actionButton("step", label = "Step"),
       actionButton("step10", label = "10 Steps"),
       br(),br(),
-      numericInput("N", value=20, label="N wyswietlanych komórek:"),
+      numericInput("N", value=1000, label="N wyswietlanych komórek:"),
       br(),br(),
       uiOutput("MInput"),
       numericInput("d", value=-1, label="d"),

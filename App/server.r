@@ -34,12 +34,14 @@ shinyServer(function(input, output) {
         if (!same_s)
           break;
         form_value = unlist(cs[[i]])
-        model_value = unlist(STATE$s[[1]])
+        model_value = unlist(STATE$s[[i]])
         if (length(form_value) != length(model_value) ||
-              sum(form_value != model_value) != 0)
+            sum(form_value != model_value) != 0) {
           same_s = FALSE
+        }
       }
-      if(sum(dim(cm) != dim(STATE$M_base)) != 0 || cm != STATE$M_base || input$d != STATE$d || same_s) {
+
+      if(sum(dim(cm) != dim(STATE$M_base)) != 0 || sum(cm != STATE$M_base) != 0 || input$d != STATE$d || !same_s) {
         STATE <<- DynAlignInit(c("A","C","T","G"), cm, input$d, cs)
         init_iteration <<- (input$step + input$step10 * 10)
         currentIndex <<- c(1,1,1)
