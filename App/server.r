@@ -107,6 +107,7 @@ shinyServer(function(input, output) {
                        y.ticklabs = c("X", STATE$s[[2]]),
                        z.ticklabs = c("X", STATE$s[[3]]),
                        lab = c(5,4,0), lab.z=4)
+
     if (length(vis_L) > 0) {
       mL = matrix(unlist(vis_L), ncol=3, byrow=3)
       sp$points3d(mL[,1], mL[,2], mL[,3], type="l", lwd=3)
@@ -155,6 +156,13 @@ shinyServer(function(input, output) {
       return(paste("<strong>Step:</strong>", input$step + input$step10 * 10 - init_iteration))
     })
   })
-
-
+  output$TLegend <- renderPlot({
+    legend("center",
+           horiz=TRUE,
+           col= c("black", "blue", "blue", "black"),
+           bg="white", lty=c(0,0,0,1), pch=c(1,1,1,NA),
+           lwd=c(2,2,3,3),
+           legend = c("in process", "candidats", "in L", "L"),
+           cex=1.3)
+  })
 })

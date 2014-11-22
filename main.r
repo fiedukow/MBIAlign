@@ -1,3 +1,4 @@
+#install.packages(c("shiny", "combinat", "scatterplot3d", "plotrix"))
 library("shiny")
 setwd("/home//fiedukow/repo/MBIAlign/")
 source("DynAlign.r")

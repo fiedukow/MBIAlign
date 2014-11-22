@@ -24,6 +24,9 @@ shinyUI(fluidPage(
     # Show a plot of the generated distribution
     mainPanel(
       plotOutput("TState"),
+      br(),
+      plotOutput("TLegend", height="50px"),
+      br(),
       uiOutput("OText"),
       br(),
       uiOutput("LOut"),
