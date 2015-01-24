@@ -85,6 +85,7 @@ shinyServer(function(input, output) {
     not_infinity = which(STATE$T[as.matrix(points)] != -Inf);
     values = STATE$T[as.matrix(points)][not_infinity]
     in_order = order(values, decreasing=TRUE)[1:input$N]
+    par(xpd = TRUE)
     sp = scatterplot3d(unlist(points[1])[not_infinity][in_order],
                        unlist(points[2])[not_infinity][in_order],
                        unlist(points[3])[not_infinity][in_order],
@@ -106,7 +107,7 @@ shinyServer(function(input, output) {
                        x.ticklabs = c("X", STATE$s[[1]]),
                        y.ticklabs = c("X", STATE$s[[2]]),
                        z.ticklabs = c("X", STATE$s[[3]]),
-                       lab = c(5,4,0), lab.z=4)
+                       lab = c(5,4,0), lab.z=4, mar = c(3, 3, 2, 15))
 
     if (length(vis_L) > 0) {
       mL = matrix(unlist(vis_L), ncol=3, byrow=3)
@@ -138,13 +139,26 @@ shinyServer(function(input, output) {
     if (currentIndex[3] > 1)
       sp$points3d(currentIndex[1]  , currentIndex[2]  , currentIndex[3]-1, lwd=2, col="blue")
 
+    xy = sp$xyz.convert(length(STATE$s[[1]]) + 1.2, length(STATE$s[[3]]) + 1.2, length(STATE$s[[2]]) + 1.2)
+    legend(horiz=FALSE,
+           col= c("pink", "blue", "blue", "black"),
+           bg="white", lty=c(0,0,0,1), pch=c(1,1,1,NA),
+           lwd=c(2,2,3,3),
+           legend = c("przetwarzany punkt", "kandydaci", "punkt wewnatrz L", "L"),
+           cex=1.3,
+           x = xy$x,
+           y = xy$y)
 
     output$LOut <- renderText({
       return(paste(c("<strong>L:</strong>", paste(STATE$L, collapse=", "))))})
 
+    output$DescOut <- renderText({
+      return(paste("<strong>Opis kroku:</strong> ", STATE$Description))
+    })
+
     output$SOut <- renderText({
       return(paste(
-        "<strong>Output:</strong><pre>",
+        "<strong>Wyjście:</strong><pre>",
         "<strong>S1:</strong>", paste(unlist(STATE$s_out[1]), collapse=", "), "\r\n",
         "<strong>S2:</strong>", paste(unlist(STATE$s_out[2]), collapse=", "), "\r\n",
         "<strong>S3:</strong>", paste(unlist(STATE$s_out[3]), collapse=", "), "\r\n</pre>",
@@ -153,16 +167,7 @@ shinyServer(function(input, output) {
     })
 
     output$OText <- renderText({
-      return(paste("<strong>Step:</strong>", input$step + input$step10 * 10 - init_iteration))
+      return(paste("<strong>Krok:</strong>", input$step + input$step10 * 10 - init_iteration))
     })
-  })
-  output$TLegend <- renderPlot({
-    legend("center",
-           horiz=TRUE,
-           col= c("black", "blue", "blue", "black"),
-           bg="white", lty=c(0,0,0,1), pch=c(1,1,1,NA),
-           lwd=c(2,2,3,3),
-           legend = c("in process", "candidats", "in L", "L"),
-           cex=1.3)
   })
 })

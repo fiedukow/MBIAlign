@@ -25,7 +25,7 @@ shinyUI(fluidPage(
     mainPanel(
       plotOutput("TState"),
       br(),
-      plotOutput("TLegend", height="50px"),
+      uiOutput("DescOut"),
       br(),
       uiOutput("OText"),
       br(),

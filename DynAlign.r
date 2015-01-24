@@ -17,6 +17,7 @@ DynAlignInit = function(S, M, d, s) {
   STATE$s_out = list();
   STATE$StateAction = TFill
   STATE$TIndex = c(2, replicate(dims - 1, 1))
+  STATE$Description = "Algorytm został zainicjalizowany."
   STATE$d = d
   return(STATE)
 }
@@ -42,6 +43,11 @@ TFill = function(STATE) {
     H_VirtualTValue(STATE$T, STATE$TIndex + c( 0,  0, -1)) + DynAlign_e(c("-","-", z ), STATE$M)
   )
 
+  STATE$Description = paste0("Wybieranie najlepszej możliwej nagrody dla komórki macierzy  (",STATE$TIndex[1],", ",
+                                                                                              STATE$TIndex[2],", ",
+                                                                                              STATE$TIndex[3],"). ",
+                             "Spośród możliwych ścieżek wybrano wartość: ", STATE$T[t(STATE$TIndex)])
+
   # Update state for next step
   next_index = H_IteratePosition(STATE$TIndex, dim(STATE$T))
   if (sum(next_index == 1) == length(next_index))
@@ -53,6 +59,11 @@ TFill = function(STATE) {
 
 LFill = function(STATE) {
   STATE$L = c(list(STATE$TIndex), STATE$L)
+  STATE$Description = paste0("Sprawdzanie źródła wybóru najlepszej nagrody dla pozycji (",
+                             STATE$TIndex[1],", ",
+                             STATE$TIndex[2],", ",
+                             STATE$TIndex[3],"). ",
+                             "Dopisywanie tej pozycji do listy L.")
 
   if (sum(STATE$TIndex == 1) == length(STATE$TIndex))
     STATE$StateAction = OutGen
@@ -68,6 +79,9 @@ OutGen = function(STATE) {
     STATE$StateAction = End
     return(STATE)
   }
+
+  STATE$Description = paste0("Generowanie wyjścia. ",
+                             "Dopasowane symbole są dopisywane do wyjściowych ciągów a z listy L usuwane jest pojedynczy element.")
 
   index = STATE$L[[1]]
   index_next = STATE$L[[2]]
@@ -86,10 +100,12 @@ OutGen = function(STATE) {
   }
 
   STATE$L = STATE$L[2:length(STATE$L)]
+
   return(STATE)
 }
 
 End = function(STATE) {
+  STATE$Description = "Zakonczono dzialanie algorytmu!"
   return(STATE)
 }
 
