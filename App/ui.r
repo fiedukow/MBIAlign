@@ -11,6 +11,7 @@ shinyUI(fluidPage(
     sidebarPanel(
       actionButton("step", label = "Step"),
       actionButton("step10", label = "10 Steps"),
+      actionButton("stepall", label = "All Steps"),
       br(),br(),
       numericInput("N", value=1000, label="N wyswietlanych komórek:"),
       br(),br(),

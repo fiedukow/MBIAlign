@@ -86,6 +86,11 @@ shinyServer(function(input, output) {
     values = STATE$T[as.matrix(points)][not_infinity]
     in_order = order(values, decreasing=TRUE)[1:input$N]
     par(xpd = TRUE)
+    color_scale = color.scale(
+      values[in_order],
+      cs1=c(1,0),
+      cs2=c(0,1),
+      cs3=c(0,0))
     sp = scatterplot3d(unlist(points[1])[not_infinity][in_order],
                        unlist(points[2])[not_infinity][in_order],
                        unlist(points[3])[not_infinity][in_order],
@@ -93,11 +98,7 @@ shinyServer(function(input, output) {
                        lty.hplot=2,
                        lwd=1,
                        pch=19,
-                       color=color.scale(
-                         values[in_order],
-                         cs1=c(1,0),
-                         cs2=c(0,1),
-                         cs3=c(0,0)),
+                       color=color_scale,
                        xlim = c(1,dim(STATE$T)[1]),
                        ylim = c(1,dim(STATE$T)[2]),
                        zlim = c(1,dim(STATE$T)[3]),
@@ -115,7 +116,7 @@ shinyServer(function(input, output) {
       sp$points3d(mL[,1], mL[,2], mL[,3], col="blue", lwd=3)
     }
 
-    sp$points3d(currentIndex[1]  , currentIndex[2]  , currentIndex[3]  , lwd=2, col="black")
+    sp$points3d(currentIndex[1]  , currentIndex[2]  , currentIndex[3]  , lwd=2, pch=2, col="black")
 
     #TODO - this looks horrible:
     if (currentIndex[1] > 1 && currentIndex[2] > 1 && currentIndex[3] > 1)
@@ -140,11 +141,24 @@ shinyServer(function(input, output) {
       sp$points3d(currentIndex[1]  , currentIndex[2]  , currentIndex[3]-1, lwd=2, col="blue")
 
     xy = sp$xyz.convert(length(STATE$s[[1]]) + 1.2, length(STATE$s[[3]]) + 1.2, length(STATE$s[[2]]) + 1.2)
+
+    q = c(1,
+          round(length(values[in_order][!is.na(values[in_order])])/4),
+          round(length(values[in_order][!is.na(values[in_order])])/2),
+          round(length(values[in_order][!is.na(values[in_order])])*3/4),
+          round(length(values[in_order][!is.na(values[in_order])])))
+
+    if (min(values) != max(values))
     legend(horiz=FALSE,
-           col= c("pink", "blue", "blue", "black"),
-           bg="white", lty=c(0,0,0,1), pch=c(1,1,1,NA),
-           lwd=c(2,2,3,3),
-           legend = c("przetwarzany punkt", "kandydaci", "punkt wewnatrz L", "L"),
+           col= c("black", "blue", "blue", "black",
+                  color_scale[q]),
+           bg="white", lty=c(0,0,0,1,0,0,0,0,0), pch=c(2,1,1,NA,19,19,19,19,19),
+           lwd=c(2,2,3,3,2,2,2,2,2),
+           legend = c("przetwarzany punkt",
+                      "kandydaci",
+                      "punkt wewnatrz L",
+                      "L",
+                      paste0("Nagroda ",values[in_order][q])),
            cex=1.3,
            x = xy$x,
            y = xy$y)
