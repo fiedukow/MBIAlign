@@ -2,6 +2,14 @@ library(shiny)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
+  tags$head(tags$script(HTML('
+      Shiny.addCustomMessageHandler("jsCode",
+        function(message) {
+          console.log(message)
+          eval(message.code);
+        }
+      );
+    '))),
 
   # Application title
   titlePanel("Szukanie globalnego podobieństwa 3 ciągów metodą programowania dynamicznego."),

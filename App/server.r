@@ -7,8 +7,16 @@ h_InM = function(id, value) {
   return(paste0("<input id=\"",id,"\" type=\"number\" value=\"",value,"\" style=\"width: 40px; text-align: center; padding-left: 0px;\"/>"))
 }
 
+setStepsButtonsDisabled <- function(session, enabled="true") {
+  id = c("step", "step10", "stepall")
+  for (i in 1:length(id))
+  session$sendCustomMessage(type="jsCode",
+                            list(code= paste("$('#",id[i],"').prop('disabled',",enabled,")"
+                                             ,sep="")))
+}
+
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
   startTime <- Sys.time()
   STATE = DynAlignInit(c("A","C","T","G"), matrix(c( 1,-1,-1,-1,
                                                     -1, 1,-1,-1,
@@ -23,6 +31,8 @@ shinyServer(function(input, output) {
   currentStep = 0
   vis_L = list()
   init_iteration = 0 # :( https://github.com/rstudio/shiny/issues/167
+  start_stepall = 0
+  restart_count = 0
 
   H_initializeIfNecessary = function() {
     if (!is.null(input$AA)) {
@@ -49,8 +59,10 @@ shinyServer(function(input, output) {
       if(sum(dim(cm) != dim(STATE$M_base)) != 0 || sum(cm != STATE$M_base) != 0 || input$d != STATE$d || !same_s) {
         STATE <<- DynAlignInit(c("A","C","T","G"), cm, input$d, cs)
         init_iteration <<- (input$step + input$step10 * 10)
+        start_stepall <<- input$stepall
         currentIndex <<- c(1,1,1)
         currentStep <<- 0
+        setStepsButtonsDisabled(session, "false")
         vis_L <<- list()
       }
     }
@@ -73,14 +85,21 @@ shinyServer(function(input, output) {
     H_initializeIfNecessary()
 
     diff = (input$step + input$step10 * 10 - init_iteration) - currentStep
-    while(diff > 0) {
+    while(diff > 0 || (input$stepall > start_stepall)) {
       currentIndex <<- STATE$TIndex
       STATE <<- DynAlignStep(STATE)
       if (length(STATE$L) > length(vis_L))  ### TODO - This is hack - it should be keept in state internally.
         vis_L <<- STATE$L
       diff = diff - 1
+      if (identical(STATE$StateAction, End)) {
+        STATE <<- DynAlignStep(STATE)
+        setStepsButtonsDisabled(session)
+        break
+      }
     }
     currentStep <<- (input$step + input$step10 * 10 - init_iteration)
+    if (diff < 0)
+      currentStep <<- currentStep - diff
     points = expand.grid(1:dim(STATE$T)[1], 1:dim(STATE$T)[2], 1:dim(STATE$T)[3])
     not_infinity = which(STATE$T[as.matrix(points)] != -Inf);
     values = STATE$T[as.matrix(points)][not_infinity]
